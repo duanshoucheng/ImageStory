@@ -1,78 +1,109 @@
 package com.shoucheng.imagestory;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
+    private FragmentManager mFragmentManager;
+    private FragmentTransaction mTransaction;
+    private  HomeFragment mHomeFragment;
+    private  CircleFragment mCircleFragment;
+    private  SettingFragment mSettingFragment;
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    setTabSelection(0);
+                    return true;
+                case R.id.navigation_dashboard:
+                    setTabSelection(1);
+                    return true;
+                case R.id.navigation_notifications:
+                    setTabSelection(2);
+                    return true;
+            }
+            return false;
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        initFragment();
+        setTabSelection(0);
     }
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+    private void initFragment() {
+        mHomeFragment = new HomeFragment();
+        mCircleFragment = new CircleFragment();
+        mSettingFragment = new SettingFragment();
+
+        mFragmentManager = getSupportFragmentManager();
+        mTransaction = mFragmentManager.beginTransaction();
+        mTransaction.add(R.id.content, mHomeFragment, "home").hide(mHomeFragment);
+        mTransaction.add(R.id.content, mCircleFragment, "circle").hide(mCircleFragment);
+        mTransaction.add(R.id.content, mSettingFragment, "setting").hide(mSettingFragment);
+
+        mTransaction.commitAllowingStateLoss();
+    }
+
+    public void setTabSelection(int index) {
+        mTransaction = mFragmentManager.beginTransaction();
+        hideFragments(mTransaction);
+        switch (index) {
+            case 0:
+                if (mHomeFragment == null) {
+                    mHomeFragment = new HomeFragment();
+                    mTransaction.add(R.id.container, mHomeFragment);
+                } else {
+                    mTransaction.show(mHomeFragment);
+                }
+
+                break;
+            case 1:
+                if (mCircleFragment == null) {
+                    mCircleFragment = new CircleFragment();
+                    mTransaction.add(R.id.container, mCircleFragment);
+                } else {
+                    mTransaction.show(mCircleFragment);
+                }
+                break;
+            case 2:
+                if (mSettingFragment == null) {
+                    mSettingFragment = new SettingFragment();
+                    mTransaction.add(R.id.container, mSettingFragment);
+                } else {
+                    mTransaction.show(mSettingFragment);
+                }
+                break;
         }
+        mTransaction.commitAllowingStateLoss();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-            Intent mIntent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(mIntent);
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-            Toast.makeText(this, "send", Toast.LENGTH_SHORT).show();
+    private void hideFragments(FragmentTransaction transaction) {
+        if (mHomeFragment != null) {
+            transaction.hide(mHomeFragment);
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        if (mCircleFragment != null) {
+            transaction.hide(mCircleFragment);
+        }
+        if (mSettingFragment != null) {
+            transaction.hide(mSettingFragment);
+        }
     }
 }
