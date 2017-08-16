@@ -1,6 +1,7 @@
 package com.shoucheng.imagestory;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -124,6 +125,10 @@ public class LauncherActivity extends AppCompatActivity {
         } else {
             show();
         }
+
+        Intent mIntent = new Intent(this, MainActivity.class);
+        startActivity(mIntent);
+        this.finish();
     }
 
     private void hide() {
